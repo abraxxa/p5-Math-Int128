@@ -39,14 +39,8 @@ Config::AutoConf->check_cc();
 my $has_int128;
 Config::AutoConf->check_type( '__int128', sub { $has_int128 = 1 } );
 
-unless ($has_int128) {
-    Config::AutoConf->msg_checking( 'for GCC 4.4/4.5 int128 workaround' );
-    Config::AutoConf->compile_if_else( <<TEST_INT128
-        typedef int int128_t __attribute__ ((__mode__ (TI)));
-        typedef unsigned int uint128_t __attribute__ ((__mode__ (TI)));
-TEST_INT128
-        , sub { print "yes\n"; $has_int128 = 1 });
-}
+Config::AutoConf->check_type( 'int __attribute__ ((__mode__ (TI)))', sub { $has_int128 = 1 } )
+    unless $has_int128;
 
 unless ($has_int128) {
     unlink $mm->{MAKEFILE};
