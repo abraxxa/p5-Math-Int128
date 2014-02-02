@@ -17,6 +17,10 @@ my $mm = WriteMakefile(NAME          => 'Math::Int128',
                        ABSTRACT_FROM => 'lib/Math/Int128.pm',
                        AUTHOR        => 'Salvador Fandino <sfandino@yahoo.com>',
                        PREREQ_PM     => \%deps,
+                       CONFIGURE_REQUIRES => {
+                           'ExtUtils::MakeMaker' => 0,
+                           'Config::AutoConf'    => 0.22,
+                        },
                        TEST_REQUIRES => { 'Test::More' => '0.88' },
                        LIBS          => [''],
                        DEFINE        => '',
@@ -30,20 +34,23 @@ my $mm = WriteMakefile(NAME          => 'Math::Int128',
                       },
                       );
 
-my $cc = (grep defined, $mm->{CC}, $Config{cc}, 'cc')[0];
-my $cc_version = `$cc --version --verbose 2>&1`;
-if (($cc_version =~ /^GNU\s+C\s+\([^)]*\)\s+version\s+(4\.(\d+)\S*)/im or
-         $cc_version =~ /^g?cc\s+\(GCC\)\s+(4\.(\d+)\S*)/im ) and
-        $2 >= 4) {
-    print "GNU C compiler version $1 found, good!\n";
+use Config::AutoConf;
+Config::AutoConf->check_cc();
+my $has_int128;
+Config::AutoConf->check_type( '__int128', sub { $has_int128 = 1 } );
+
+unless ($has_int128) {
+    Config::AutoConf->msg_checking( 'for GCC 4.4/4.5 int128 workaround' );
+    Config::AutoConf->compile_if_else( <<TEST_INT128
+        typedef int int128_t __attribute__ ((__mode__ (TI)));
+        typedef unsigned int uint128_t __attribute__ ((__mode__ (TI)));
+TEST_INT128
+        , sub { print "yes\n"; $has_int128 = 1 });
 }
-elsif ($cc_version =~ /\bclang\s+version\s+(3.(\d+)\S*)/im and
-       $2 >= 2) {
-    print "Clang compiler version $1 found, good!\n";
-}
-else {
+
+unless ($has_int128) {
     unlink $mm->{MAKEFILE};
-    die "This module requires version 4.4 or above of the GCC compiler.\nAborting!\n\n"
+    die "128bit integers not supported by your C compiler.\nAborting!\n\n";
 }
 
 
