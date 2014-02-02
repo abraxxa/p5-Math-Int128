@@ -1,0 +1,5 @@
+*.swp
+*.tar.gz
+Math-Int128*
+config.log
+MANIFEST.bak

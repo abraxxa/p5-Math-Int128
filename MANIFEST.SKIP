@@ -1,0 +1,43 @@
+# avoid version control files.
+\bRCS\b
+\bCVS\b
+,v$
+\B\.svn\b
+\b_darcs\b
+\B\.git\b
+.git
+
+# Makemaker generated files and dirs.
+^MANIFEST\.
+^Makefile$
+^blib/
+^pm_to_blib
+^MakeMaker-\d
+^MYMETA\.
+
+# avoid temp and backup files.
+~$
+\.tmp$
+\.old$
+\.bak$
+\..*?\.sw[po]$
+\#$
+\b\.#
+
+# avoid OS X finder files
+\.DS_Store$
+
+# avoid patch remnants
+\.orig$
+\.rej$
+
+# avoid travis-ci config file
+.travis
+\btravis\b
+
+# avoid Config::AutoConf's config.log
+config.log
+
+# avoid compiled XS files
+\.o
+^Int128.c
